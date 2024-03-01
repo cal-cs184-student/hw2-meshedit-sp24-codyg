@@ -153,19 +153,20 @@ namespace CGL
 
 
     //set all new vals
-    he1->setNeighbors(he6, he1->twin(), a, he1->edge(), he1->face());
-    he2->setNeighbors(he1, he2->twin(), he2->vertex(), he2->edge(), he2->face());
-    he3->setNeighbors(he5, he3->twin(), he3->vertex(), he3->edge(), face2);
-    he4->setNeighbors(he3, he4->twin(), d, he4->edge(), he4->face());
-    he5->setNeighbors(he4, he5->twin(), he5->vertex(), he5->edge(), he5->face());
-    he6->setNeighbors(he2, he6->twin(), he6->vertex(), he6->edge(), face1);
+    he1->setNeighbors(he3, he1->twin(), d, he1->edge(), he1->face());
+    he2->setNeighbors(he4, he2->twin(), he2->vertex(), he2->edge(), face2);
+    he3->setNeighbors(he5, he3->twin(), he3->vertex(), he3->edge(), he3->face());
+    he4->setNeighbors(he6, he4->twin(), a, he4->edge(), he4->face());
+    he5->setNeighbors(he1, he5->twin(), he5->vertex(), he5->edge(), face1);
+    he6->setNeighbors(he2, he6->twin(), he6->vertex(), he6->edge(), he6->face());
     b->halfedge() = he5;
     c->halfedge() = he2;
-    a->halfedge() = he1;
-    d->halfedge() = he4;
+    a->halfedge() = he4;
+    d->halfedge() = he1;
 
     face1->halfedge() = he1;
     face2->halfedge() = he4;
+    e0->halfedge() = he4;
 
 
     // This method should flip the given edge and return an iterator to the flipped edge.
@@ -230,12 +231,12 @@ namespace CGL
     he8->setNeighbors(he3, he7, e, e1, face4);
     he9->setNeighbors(he8, he10, b, e2, face4);
     he10->setNeighbors(he5, he9, e, e2, face3);
-    he11->setNeighbors(he10, he12, d, e2, face3);
+    he11->setNeighbors(he10, he12, d, e3, face3);
     he12->setNeighbors(he6, he11, e, e3, face2);
 
     a->halfedge() = he3;
     b->halfedge() = he5;
-    c->halfedge() = he3;
+    c->halfedge() = he2;
     d->halfedge() = he6;
     e->halfedge() = he1;
 
@@ -285,19 +286,49 @@ namespace CGL
     HalfedgeIter sumHelp;
     HalfedgeIter startH;
     double u;
+    int counter;
+    int tot;
 
     // 1. Compute new positions for all the vertices in the input mesh, using the Loop subdivision rule,
     // and store them in Vertex::newPosition. At this point, we also want to mark each vertex as being
     // a vertex of the original mesh.
-    e = mesh.edgesBegin();
-    while (e != mesh.edgesEnd()) {
-        nextEdge = e;
-        nextEdge++;
+//    e = mesh.edgesBegin();
+//    while (e != mesh.edgesEnd()) {
+//        nextEdge = e;
+//        nextEdge++;
+//
+//        sum = Vector3D(0, 0, 0);
+//        v1 = e->halfedge()->vertex();
+//
+//        sumHelp = e->halfedge();
+//        startH = sumHelp;
+//        do {
+//            sum += sumHelp->next()->vertex()->position;
+//            sumHelp = sumHelp->next()->next()->twin();
+//        } while (startH != sumHelp);
+//
+//
+//        if (v1->degree() == 3) {
+//            u = 3.0 / 16.0;
+//        } else {
+//            u = 3.0 / (8.0 * double(v1->degree()));
+//        }
+//        //cout << v1->degree() << "\n";
+//        v1->newPosition = (1.0 - double(v1->degree()) * u) * v1->position + u * sum;
+//        //cout << v1->position << " " << v1->newPosition << "\n";
+//
+//        v1->isNew = false;
+//        e = nextEdge;
+//    }
+    vLoop = mesh.verticesBegin();
+    while (vLoop != mesh.verticesEnd()) {
+        nextVertex = vLoop;
+        nextVertex++;
 
         sum = Vector3D(0, 0, 0);
-        v1 = e->halfedge()->vertex();
+        v1 = vLoop;
 
-        sumHelp = e->halfedge();
+        sumHelp = v1->halfedge();
         startH = sumHelp;
         do {
             sum += sumHelp->next()->vertex()->position;
@@ -313,14 +344,11 @@ namespace CGL
         //cout << v1->degree() << "\n";
         v1->newPosition = (1.0 - double(v1->degree()) * u) * v1->position + u * sum;
         //cout << v1->position << " " << v1->newPosition << "\n";
-        if (v1->position.x == v1->newPosition.x
-            && v1->position.y == v1->newPosition.y
-            && v1->position.z == v1->newPosition.z) {
-            cout << "failed" << "\n";
-        }
+
         v1->isNew = false;
-        e = nextEdge;
+        vLoop = nextVertex;
     }
+    tot = mesh.nVertices();
 
     e = mesh.edgesBegin();
     while (e != mesh.edgesEnd()) {
@@ -374,7 +402,7 @@ namespace CGL
         e = nextEdge;
     }
 
-
+    counter = 0;
     vLoop = mesh.verticesBegin();
     while (vLoop != mesh.verticesEnd()) {
     // 5. Copy the new vertex positions into final Vertex::position.
@@ -383,10 +411,14 @@ namespace CGL
         //cout << vLoop->position << " " << vLoop->newPosition << "\n";
         vLoop->position = vLoop->newPosition;
         //out << vLoop->degree() << "\n";
-
+        if (vLoop->newPosition.x == 0) {
+            cout << counter << "\n";
+        }
+        vLoop->newPosition = Vector3D(0,0,0);
         vLoop = nextVertex;
+        counter++;
     }
-
+      //cout << "total: " << tot << "\n";
 
   }
 }
