@@ -411,10 +411,10 @@ namespace CGL
         //cout << vLoop->position << " " << vLoop->newPosition << "\n";
         vLoop->position = vLoop->newPosition;
         //out << vLoop->degree() << "\n";
-        if (vLoop->newPosition.x == 0) {
-            cout << counter << "\n";
-        }
-        vLoop->newPosition = Vector3D(0,0,0);
+//        if (vLoop->newPosition.x == 0) {
+//            cout << counter << "\n";
+//        }
+//        vLoop->newPosition = Vector3D(0,0,0);
         vLoop = nextVertex;
         counter++;
     }
